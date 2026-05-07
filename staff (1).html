@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Optimus — Input Stok</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+:root{
+  --navy:#0f1f3d;--navy-m:#1a3260;--navy-l:#2a4a8a;
+  --accent:#2563eb;--accent-l:#3b82f6;--accent-dim:rgba(37,99,235,0.10);
+  --green:#16a34a;--green-dim:rgba(22,163,74,0.10);
+  --red:#dc2626;--red-dim:rgba(220,38,38,0.08);
+  --amber:#d97706;--amber-dim:rgba(217,119,6,0.10);
+  --white:#ffffff;--off:#f8faff;
+  --text:#0f1f3d;--text2:#4a5a7a;--text3:#8a9ab8;
+  --border:rgba(15,31,61,0.10);
+  --font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;--serif:'Playfair Display',serif;
+  --shadow:0 2px 12px rgba(15,31,61,0.08);
+  --shadow-md:0 4px 20px rgba(15,31,61,0.10);
+}
+html,body{min-height:100vh;font-family:var(--font);color:var(--text);background:var(--off);}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 70% 60% at 0% 0%,rgba(37,99,235,0.05) 0%,transparent 60%);pointer-events:none;z-index:0;}
+
+/* TOPBAR */
+.topbar{position:sticky;top:0;z-index:100;background:rgba(15,31,61,0.97);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.08);height:56px;padding:0 16px;display:flex;align-items:center;justify-content:space-between;}
+.tb-left{display:flex;align-items:center;gap:10px;}
+.tb-logo{width:30px;height:30px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:14px;color:white;font-weight:700;}
+.tb-title{font-size:14px;font-weight:600;color:rgba(255,255,255,0.92);}
+.tb-sub{font-size:10px;color:rgba(255,255,255,0.35);margin-top:1px;}
+.tb-right{display:flex;align-items:center;gap:8px;}
+.tb-clock{font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.4);}
+.btn-logout{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:5px 10px;font-size:11px;font-weight:500;color:rgba(255,255,255,0.5);cursor:pointer;font-family:var(--font);}
+.btn-logout:hover{background:rgba(255,255,255,0.12);color:rgba(255,255,255,0.8);}
+
+/* PROGRESS BAR */
+.prog-bar{position:sticky;top:56px;z-index:99;background:rgba(15,31,61,0.90);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,0.06);padding:10px 16px;display:flex;align-items:center;gap:10px;}
+.pb-track{flex:1;height:6px;background:rgba(255,255,255,0.10);border-radius:10px;overflow:hidden;}
+.pb-fill{height:100%;border-radius:10px;background:linear-gradient(90deg,var(--accent),var(--accent-l));transition:width 0.3s;}
+.pb-count{font-family:var(--mono);font-size:11px;font-weight:500;color:var(--accent-l);white-space:nowrap;}
+.btn-simpan{height:36px;padding:0 16px;background:var(--accent);border:none;border-radius:9px;font-family:var(--font);font-size:12px;font-weight:600;color:white;cursor:pointer;white-space:nowrap;transition:all 0.2s;}
+.btn-simpan:hover{background:var(--accent-l);}
+.btn-simpan:active{transform:scale(0.97);}
+.btn-simpan:disabled{opacity:0.5;cursor:not-allowed;}
+
+/* CONTENT */
+.content{padding:14px 14px 100px;position:relative;z-index:1;}
+
+/* LOCK BANNER */
+.lock-banner{background:rgba(15,31,61,0.06);border:1.5px solid rgba(15,31,61,0.12);border-radius:14px;padding:14px 16px;margin-bottom:12px;display:flex;align-items:flex-start;gap:12px;}
+.lb-icon{font-size:20px;flex-shrink:0;margin-top:1px;}
+.lb-title{font-size:13px;font-weight:600;color:var(--navy);margin-bottom:2px;}
+.lb-sub{font-size:11px;color:var(--text3);line-height:1.5;}
+
+/* RAK BLOCK */
+.rak-block{margin-bottom:12px;}
+.rak-hd{display:flex;align-items:center;gap:8px;padding:8px 12px;background:rgba(15,31,61,0.04);border:1px solid var(--border);border-radius:10px;margin-bottom:6px;}
+.rak-icon{font-size:14px;}
+.rak-name{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text2);flex:1;}
+.rak-done{font-size:10px;font-weight:600;color:var(--accent);background:var(--accent-dim);padding:2px 8px;border-radius:6px;}
+
+/* ITEM ROW */
+.ir{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:12px;background:white;border:1.5px solid var(--border);margin-bottom:6px;min-height:52px;transition:all 0.15s;box-shadow:var(--shadow);}
+.ir.filled{border-color:rgba(37,99,235,0.25);background:rgba(248,250,255,0.9);}
+.ir.zero{border-color:rgba(220,38,38,0.2);background:var(--red-dim);}
+.ir.produksi{background:rgba(15,31,61,0.03);border-color:rgba(15,31,61,0.08);}
+.ir.locked{opacity:0.4;pointer-events:none;}
+.ir-dot{width:7px;height:7px;border-radius:50%;background:rgba(15,31,61,0.12);flex-shrink:0;transition:all 0.2s;}
+.ir.filled .ir-dot{background:var(--accent);}
+.ir.zero .ir-dot{background:var(--red);}
+.ir-left{flex:1;min-width:0;}
+.ir-name{font-size:13px;font-weight:600;color:var(--text);}
+.ir-type{display:inline-block;font-size:9px;font-weight:600;background:var(--accent-dim);color:var(--accent);padding:1px 6px;border-radius:5px;margin-top:3px;}
+.ir-right{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+
+/* INPUT BOX */
+.inp-box{display:flex;align-items:center;gap:4px;background:var(--off);border:1.5px solid var(--border);border-radius:9px;height:40px;padding:0 10px;transition:all 0.2s;}
+.inp-box.hv{border-color:rgba(37,99,235,0.3);background:white;}
+.inp-box.zv{border-color:rgba(220,38,38,0.3);}
+.ir-inp{width:44px;border:none;background:transparent;font-family:var(--mono);font-size:15px;font-weight:600;color:var(--text);text-align:right;outline:none;-webkit-appearance:none;padding:0;}
+.ir-inp.zv{color:var(--red);}
+.ir-satuan{font-size:10px;font-weight:500;color:var(--text3);white-space:nowrap;}
+
+/* BUTTONS */
+.btn-next{height:40px;padding:0 10px;border-radius:9px;background:var(--off);border:1.5px solid var(--border);font-size:10px;font-weight:600;color:var(--text2);cursor:pointer;font-family:var(--font);white-space:nowrap;}
+.btn-next:active{transform:scale(0.95);}
+.btn-habis{height:40px;padding:0 10px;border-radius:9px;background:var(--off);border:1.5px solid var(--border);font-size:10px;font-weight:600;color:var(--text3);cursor:pointer;font-family:var(--font);white-space:nowrap;transition:all 0.15s;}
+.btn-habis:active{transform:scale(0.95);}
+.btn-habis.on{background:var(--red);border-color:var(--red);color:white;}
+
+/* MODAL */
+.mwrap{display:none;position:fixed;inset:0;background:rgba(15,31,61,0.5);z-index:999;align-items:flex-end;justify-content:center;backdrop-filter:blur(8px);}
+.mwrap.open{display:flex;}
+.msheet{background:white;border-radius:20px 20px 0 0;padding:20px 20px 44px;width:100%;max-width:480px;border-top:1px solid var(--border);box-shadow:0 -8px 40px rgba(15,31,61,0.15);animation:slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1);}
+@keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+.sh-handle{width:36px;height:4px;border-radius:4px;background:var(--border);margin:0 auto 16px;}
+.sh-title{font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px;}
+.sh-body{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:4px;}
+.sh-empty{font-size:11px;color:var(--text3);line-height:1.8;padding:6px 0;}
+.sh-actions{display:flex;gap:8px;margin-top:16px;}
+.sh-cancel{flex:1;padding:13px;border-radius:11px;background:var(--off);border:1.5px solid var(--border);font-family:var(--font);font-size:13px;font-weight:600;color:var(--text2);cursor:pointer;}
+.sh-ok{flex:2;padding:13px;border-radius:11px;background:var(--navy);border:none;font-family:var(--font);font-size:13px;font-weight:600;color:white;cursor:pointer;}
+.sh-ok:hover{background:var(--navy-m);}
+
+/* PJ INPUT */
+.pj-wrap{margin-top:14px;}
+.pj-label{font-size:10px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text3);margin-bottom:6px;display:block;}
+.pj-input{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:var(--font);font-size:14px;font-weight:500;color:var(--text);background:var(--off);outline:none;}
+.pj-input:focus{border-color:var(--accent);background:white;}
+
+/* SUCCESS */
+.overlay{display:none;position:fixed;inset:0;background:rgba(15,31,61,0.55);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(10px);}
+.overlay.show{display:flex;}
+.ov-card{background:white;border-radius:20px;padding:36px 28px;text-align:center;max-width:320px;width:90%;box-shadow:var(--shadow-md);}
+.ov-icon{font-size:52px;margin-bottom:12px;}
+.ov-title{font-size:20px;font-weight:700;color:var(--text);margin-bottom:6px;}
+.ov-sub{font-size:13px;color:var(--text3);line-height:1.5;}
+.btn-done{margin-top:20px;width:100%;padding:13px;border-radius:12px;background:var(--navy);border:none;font-family:var(--font);font-size:13px;font-weight:600;color:white;cursor:pointer;}
+
+/* LOADING */
+.loading-overlay{display:none;position:fixed;inset:0;background:rgba(15,31,61,0.45);z-index:9998;align-items:center;justify-content:center;backdrop-filter:blur(6px);}
+.loading-overlay.show{display:flex;}
+.loading-card{background:white;border-radius:16px;padding:24px 32px;text-align:center;box-shadow:var(--shadow-md);}
+.spinner{width:32px;height:32px;border:3px solid var(--accent-dim);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 10px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-text{font-size:12px;font-weight:600;color:var(--text2);}
+
+::-webkit-scrollbar{width:0;}
+</style>
+</head>
+<body>
+
+<!-- MODAL KONFIRMASI -->
+<div class="mwrap" id="m-confirm">
+  <div class="msheet">
+    <div class="sh-handle"></div>
+    <div class="sh-title" id="m-title">Simpan Data Stok?</div>
+    <div class="sh-body" id="m-body"></div>
+    <div class="sh-empty" id="m-empty"></div>
+    <div class="pj-wrap">
+      <span class="pj-label">Nama Penanggung Jawab *</span>
+      <input class="pj-input" id="pj-nama" type="text" placeholder="Tulis namamu..." autocomplete="name">
+    </div>
+    <div class="sh-actions">
+      <button class="sh-cancel" onclick="closeM()">Kembali</button>
+      <button class="sh-ok" onclick="doSave()">Simpan ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- SUCCESS -->
+<div class="overlay" id="overlay-success">
+  <div class="ov-card">
+    <div class="ov-icon">✅</div>
+    <div class="ov-title">Stok Tersimpan!</div>
+    <div class="ov-sub" id="success-sub">Data berhasil dicatat.</div>
+    <button class="btn-done" onclick="resetAll()">Input Ulang / Shift Baru</button>
+  </div>
+</div>
+
+<!-- LOADING -->
+<div class="loading-overlay" id="loading">
+  <div class="loading-card">
+    <div class="spinner"></div>
+    <div class="loading-text" id="loading-text">Memuat data...</div>
+  </div>
+</div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="tb-left">
+    <div class="tb-logo">O</div>
+    <div>
+      <div class="tb-title">Input Stok</div>
+      <div class="tb-sub" id="tb-user">—</div>
+    </div>
+  </div>
+  <div class="tb-right">
+    <div class="tb-clock" id="clock">--:--</div>
+    <button class="btn-logout" onclick="doLogout()">Keluar</button>
+  </div>
+</div>
+
+<!-- PROGRESS -->
+<div class="prog-bar">
+  <div class="pb-track"><div class="pb-fill" id="pb-fill" style="width:0%"></div></div>
+  <div class="pb-count" id="pb-count">0/0</div>
+  <button class="btn-simpan" id="btn-simpan" onclick="checkSave()">Simpan ✓</button>
+</div>
+
+<!-- CONTENT -->
+<div class="content" id="content">
+  <div style="text-align:center;padding:40px;color:var(--text3);">
+    <div style="font-size:24px;margin-bottom:8px;">⏳</div>
+    <div style="font-size:13px;font-weight:500;">Memuat data bahan...</div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+import { getFirestore, collection, getDocs, addDoc, query, where, orderBy, limit, serverTimestamp, Timestamp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCAW1zPA4dIUNMjKf0oaQopX1Pp0KF2mAk",
+  authDomain: "opnimus-e5c3f.firebaseapp.com",
+  projectId: "opnimus-e5c3f",
+  storageBucket: "opnimus-e5c3f.firebasestorage.app",
+  messagingSenderId: "588741330149",
+  appId: "1:588741330149:web:2b876474e592ca9142800c"
+};
+
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+
+// ── SESSION CHECK ─────────────────────────────────────────────
+const sessionRaw = sessionStorage.getItem('optimus_user');
+if (!sessionRaw) { window.location.href = 'index.html'; }
+const SESSION = JSON.parse(sessionRaw || '{}');
+if (SESSION.role === 'owner') { window.location.href = 'owner.html'; }
+document.getElementById('tb-user').textContent = SESSION.nama || SESSION.username;
+
+// ── STATE ─────────────────────────────────────────────────────
+let BAHAN = [];
+let state = {};
+
+const RAK_ICON = {
+  'Bar':'🍹','Chiller':'❄️','Freezer':'🧊','Meja Kasir':'🖥️',
+  'Rak Bawah Bar':'🗄️','Meja Luar - Area 1':'📦',
+  'Meja Luar - Area 2':'📦','Meja Luar - Area 3':'📦','Meja Luar - Area 4':'📦'
+};
+
+// ── LOAD DATA ─────────────────────────────────────────────────
+async function loadData() {
+  showLoading('Memuat data bahan...');
+  try {
+    // Load master bahan
+    const snap = await getDocs(collection(db, 'master_bahan'));
+    BAHAN = snap.docs
+      .map(d => d.data())
+      .filter(b => b.STATUS === 'AKTIF' && b.STOK_HARAPAN > 0)
+      .sort((a, b) => a.NO - b.NO);
+
+    // Cek apakah hari ini sudah ada input
+    const today = getTodayStr();
+    const logQ = query(
+      collection(db, 'log_stok'),
+      where('tanggal', '==', today),
+      limit(1)
+    );
+    const logSnap = await getDocs(logQ);
+    hideLoading();
+
+    if (!logSnap.empty) {
+      const firstLog = logSnap.docs[0].data();
+      buildForm();
+      // Tampilkan lock banner
+      const banner = `<div class="lock-banner">
+        <div class="lb-icon">🔒</div>
+        <div>
+          <div class="lb-title">Stok hari ini sudah diinput</div>
+          <div class="lb-sub">Diisi oleh <strong>${firstLog.pic_input}</strong> · Hubungi owner jika perlu koreksi</div>
+        </div>
+      </div>`;
+      document.getElementById('content').insertAdjacentHTML('afterbegin', banner);
+      document.querySelectorAll('.ir').forEach(el => el.classList.add('locked'));
+      document.getElementById('btn-simpan').disabled = true;
+      document.getElementById('btn-simpan').style.opacity = '0.4';
+    } else {
+      buildForm();
+    }
+  } catch(err) {
+    hideLoading();
+    document.getElementById('content').innerHTML =
+      '<div style="text-align:center;padding:40px;color:var(--red);font-size:13px;font-weight:600;">❌ Gagal memuat data.<br>Coba refresh halaman.</div>';
+    console.error(err);
+  }
+}
+
+// ── BUILD FORM ────────────────────────────────────────────────
+function groupByRak() {
+  const g = {};
+  BAHAN.forEach(b => {
+    if (!g[b.RAK]) g[b.RAK] = [];
+    g[b.RAK].push(b);
+  });
+  return g;
+}
+
+function buildForm() {
+  const groups = groupByRak();
+  let h = '';
+  Object.keys(groups).forEach(rak => {
+    const items = groups[rak];
+    const icon = RAK_ICON[rak] || '📍';
+    const rakId = rak.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '_');
+    h += `<div class="rak-block">`;
+    h += `<div class="rak-hd">
+      <span class="rak-icon">${icon}</span>
+      <span class="rak-name">${rak}</span>
+      <span class="rak-done" id="done-${rakId}">0/${items.length}</span>
+    </div>`;
+    items.forEach(b => {
+      const isProd = b.TIPE === 'Produksi';
+      h += `<div class="ir${isProd ? ' produksi' : ''}" id="ir-${b.NO}">
+        <div class="ir-dot"></div>
+        <div class="ir-left">
+          <div class="ir-name">${b.NAMA_BAHAN}</div>
+          ${isProd ? '<div class="ir-type">🧑‍🍳 Produksi</div>' : ''}
+        </div>
+        <div class="ir-right">
+          <div class="inp-box" id="inp-box-${b.NO}">
+            <input class="ir-inp" id="inp-${b.NO}" type="number" min="0"
+              inputmode="decimal" placeholder="—"
+              oninput="onVal(${b.NO},'${rakId}')"
+              onkeydown="onKey(event,${b.NO})">
+            <span class="ir-satuan">${b.SATUAN_PAKAI}</span>
+          </div>
+          <button class="btn-next" onclick="nextItem(${b.NO})">Enter ↓</button>
+          <button class="btn-habis" id="hb-${b.NO}" onclick="setHabis(${b.NO},'${rakId}')">Habis</button>
+        </div>
+      </div>`;
+    });
+    h += `</div>`;
+  });
+  document.getElementById('content').innerHTML = h;
+  updateProg();
+}
+
+// ── INPUT HANDLERS ────────────────────────────────────────────
+window.onVal = function(no, rakId) {
+  const b = BAHAN.find(x => x.NO == no);
+  const inp = document.getElementById('inp-' + no);
+  const row = document.getElementById('ir-' + no);
+  const hb  = document.getElementById('hb-' + no);
+  const box = document.getElementById('inp-box-' + no);
+  const v   = inp.value;
+  state[no] = v;
+  inp.className = 'ir-inp';
+  row.className = 'ir' + (b && b.TIPE === 'Produksi' ? ' produksi' : '');
+  if (box) box.className = 'inp-box';
+  hb.classList.remove('on');
+  if (v === '') {}
+  else if (v === '0') {
+    inp.classList.add('zv');
+    if (box) box.classList.add('zv');
+    row.classList.add('zero');
+    hb.classList.add('on');
+  } else {
+    if (box) box.classList.add('hv');
+    row.classList.add('filled');
+  }
+  updateProg();
+  updateRakDone(rakId);
+};
+
+window.setHabis = function(no, rakId) {
+  const inp = document.getElementById('inp-' + no);
+  const hb  = document.getElementById('hb-' + no);
+  inp.value = hb.classList.contains('on') ? '' : '0';
+  window.onVal(no, rakId);
+};
+
+window.nextItem = function(no) {
+  const idx = BAHAN.findIndex(b => b.NO == no);
+  if (idx >= 0 && idx < BAHAN.length - 1) {
+    const next = document.getElementById('inp-' + BAHAN[idx + 1].NO);
+    if (next) { next.focus(); next.select(); next.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+  }
+};
+
+window.onKey = function(e, no) {
+  if (e.key === 'Enter') { e.preventDefault(); window.nextItem(no); }
+};
+
+function updateRakDone(rakId) {
+  const groups = groupByRak();
+  Object.keys(groups).forEach(rak => {
+    const id = rak.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '_');
+    if (id === rakId) {
+      const done = groups[rak].filter(b => state[b.NO] !== undefined && state[b.NO] !== '').length;
+      const el = document.getElementById('done-' + rakId);
+      if (el) el.textContent = done + '/' + groups[rak].length;
+    }
+  });
+}
+
+function updateProg() {
+  const filled = BAHAN.filter(b => state[b.NO] !== undefined && state[b.NO] !== '').length;
+  const total  = BAHAN.length;
+  const pct    = total > 0 ? Math.round((filled / total) * 100) : 0;
+  document.getElementById('pb-fill').style.width = pct + '%';
+  document.getElementById('pb-count').textContent = filled + '/' + total;
+}
+
+// ── SAVE FLOW ─────────────────────────────────────────────────
+window.checkSave = function() {
+  const empty = BAHAN.filter(b => state[b.NO] === undefined || state[b.NO] === '');
+  if (empty.length > 0) {
+    document.getElementById('m-title').textContent = `⚠ ${empty.length} item belum diisi`;
+    document.getElementById('m-body').innerHTML = `Masih ada <strong>${empty.length} item</strong> yang belum diisi. Lanjut simpan?`;
+    document.getElementById('m-empty').innerHTML = empty.slice(0, 5).map(b => '• ' + b.NAMA_BAHAN).join('<br>') + (empty.length > 5 ? `<br>• ...dan ${empty.length - 5} lainnya` : '');
+  } else {
+    document.getElementById('m-title').textContent = 'Simpan Data Stok?';
+    document.getElementById('m-body').innerHTML = `Semua <strong>${BAHAN.length} item</strong> sudah diisi. Siap disimpan!`;
+    document.getElementById('m-empty').innerHTML = '';
+  }
+  document.getElementById('pj-nama').value = '';
+  document.getElementById('m-confirm').classList.add('open');
+  setTimeout(() => document.getElementById('pj-nama').focus(), 400);
+};
+
+window.doSave = async function() {
+  const nama = document.getElementById('pj-nama').value.trim();
+  if (!nama) {
+    document.getElementById('pj-nama').style.borderColor = 'var(--red)';
+    document.getElementById('pj-nama').focus();
+    return;
+  }
+  window.closeM();
+  showLoading('Menyimpan data stok...');
+  document.getElementById('btn-simpan').disabled = true;
+
+  const today = getTodayStr();
+  const now   = new Date();
+  const logId = 'LOG-' + today.replace(/-/g,'') + '-' + now.getTime();
+
+  try {
+    const items = BAHAN.filter(b => state[b.NO] !== undefined && state[b.NO] !== '');
+    const batch = items.map(b => addDoc(collection(db, 'log_stok'), {
+      log_id:     logId,
+      timestamp:  serverTimestamp(),
+      tanggal:    today,
+      shift:      'Malam',
+      no_bahan:   b.NO,
+      nama_bahan: b.NAMA_BAHAN,
+      sisa_stok:  parseFloat(state[b.NO]) || 0,
+      satuan:     b.SATUAN_PAKAI,
+      pic_input:  nama,
+      keterangan: ''
+    }));
+    await Promise.all(batch);
+    hideLoading();
+    document.getElementById('success-sub').textContent = `${items.length} item dicatat oleh ${nama}. Terima kasih! 🙏`;
+    document.getElementById('overlay-success').classList.add('show');
+  } catch(err) {
+    hideLoading();
+    alert('❌ Gagal menyimpan: ' + err.message);
+    document.getElementById('btn-simpan').disabled = false;
+    console.error(err);
+  }
+};
+
+window.resetAll = function() {
+  document.getElementById('overlay-success').classList.remove('show');
+  state = {};
+  document.getElementById('btn-simpan').disabled = false;
+  buildForm();
+};
+
+window.closeM = function() {
+  document.getElementById('m-confirm').classList.remove('open');
+};
+
+window.doLogout = function() {
+  sessionStorage.removeItem('optimus_user');
+  window.location.href = 'index.html';
+};
+
+// ── HELPERS ───────────────────────────────────────────────────
+function getTodayStr() {
+  const d = new Date();
+  return d.toISOString().substring(0, 10);
+}
+function showLoading(msg) {
+  document.getElementById('loading-text').textContent = msg || 'Memuat...';
+  document.getElementById('loading').classList.add('show');
+}
+function hideLoading() {
+  document.getElementById('loading').classList.remove('show');
+}
+function tick() {
+  document.getElementById('clock').textContent =
+    new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+}
+setInterval(tick, 1000);
+tick();
+
+// ── INIT ──────────────────────────────────────────────────────
+loadData();
+</script>
+</body>
+</html>

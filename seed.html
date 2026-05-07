@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Optimus — Seed Data</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --navy:#0f1f3d;--accent:#2563eb;--accent-l:#3b82f6;
+  --green:#16a34a;--red:#dc2626;--amber:#d97706;
+  --off:#f8faff;--border:rgba(15,31,61,0.10);
+  --text:#0f1f3d;--text2:#4a5a7a;--text3:#8a9ab8;
+  --font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+}
+body{font-family:var(--font);background:var(--off);color:var(--text);min-height:100vh;padding:24px 16px;}
+.wrap{max-width:560px;margin:0 auto;}
+.logo{display:flex;align-items:center;gap:10px;margin-bottom:28px;}
+.logo-mark{width:36px;height:36px;background:var(--navy);border-radius:10px;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:16px;}
+.logo-name{font-size:20px;font-weight:700;color:var(--navy);}
+.logo-sub{font-size:11px;color:var(--text3);margin-top:1px;}
+.card{background:white;border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:16px;box-shadow:0 2px 12px rgba(15,31,61,0.06);}
+.card-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px;}
+.card-sub{font-size:12px;color:var(--text3);margin-bottom:16px;line-height:1.6;}
+.warning{background:rgba(217,119,6,0.08);border:1px solid rgba(217,119,6,0.2);border-radius:10px;padding:12px 14px;font-size:12px;color:#92400e;margin-bottom:16px;line-height:1.6;}
+.btn{width:100%;height:46px;border-radius:11px;font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all 0.2s;margin-bottom:8px;}
+.btn-primary{background:var(--navy);color:white;}
+.btn-primary:hover{background:#1a3260;}
+.btn-primary:disabled{opacity:0.5;cursor:not-allowed;}
+.btn-danger{background:var(--red);color:white;}
+.btn-danger:hover{background:#b91c1c;}
+.btn-danger:disabled{opacity:0.5;cursor:not-allowed;}
+.btn-green{background:var(--green);color:white;}
+.btn-green:disabled{opacity:0.5;cursor:not-allowed;}
+.log{background:#0f1f3d;border-radius:12px;padding:16px;font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.7);min-height:200px;max-height:380px;overflow-y:auto;line-height:1.8;}
+.log-line{padding:1px 0;}
+.log-line.ok{color:#4ade80;}
+.log-line.err{color:#f87171;}
+.log-line.info{color:#60a5fa;}
+.log-line.warn{color:#fbbf24;}
+.progress-wrap{margin:12px 0;}
+.progress-track{height:8px;background:rgba(15,31,61,0.08);border-radius:10px;overflow:hidden;}
+.progress-fill{height:100%;border-radius:10px;background:linear-gradient(90deg,var(--accent),var(--accent-l));transition:width 0.3s;width:0%;}
+.progress-text{font-size:11px;color:var(--text3);margin-top:6px;font-family:var(--mono);}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;}
+.stat{background:var(--off);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center;}
+.stat-n{font-size:22px;font-weight:700;color:var(--navy);font-family:var(--mono);}
+.stat-l{font-size:10px;color:var(--text3);margin-top:2px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="logo">
+    <div class="logo-mark">O</div>
+    <div>
+      <div class="logo-name">Optimus</div>
+      <div class="logo-sub">Database Seeder</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📦 Import Master Data</div>
+    <div class="card-sub">
+      Tool ini akan mengisi database Firestore dengan data awal:<br>
+      51 bahan baku · 16 supplier · 1 akun owner · 1 akun staff
+    </div>
+
+    <div class="warning">
+      ⚠️ <strong>Perhatian:</strong> Jalankan tool ini hanya sekali. Kalau dijalankan lagi, data akan terduplikasi. Gunakan tombol "Hapus Semua Data" dulu kalau mau reset.
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat"><div class="stat-n" id="st-bahan">51</div><div class="stat-l">Master Bahan</div></div>
+      <div class="stat"><div class="stat-n" id="st-supplier">16</div><div class="stat-l">Supplier</div></div>
+      <div class="stat"><div class="stat-n" id="st-user">2</div><div class="stat-l">User</div></div>
+    </div>
+
+    <button class="btn btn-primary" id="btn-seed" onclick="startSeed()">▶ Mulai Import Data</button>
+    <button class="btn btn-danger" id="btn-clear" onclick="startClear()">🗑 Hapus Semua Data (Reset)</button>
+
+    <div class="progress-wrap" id="prog-wrap" style="display:none;">
+      <div class="progress-track"><div class="progress-fill" id="prog-fill"></div></div>
+      <div class="progress-text" id="prog-text">0 / 0</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📋 Log</div>
+    <div class="log" id="log">
+      <div class="log-line info">Siap. Klik "Mulai Import Data" untuk memulai.</div>
+    </div>
+  </div>
+
+  <div class="card" id="card-done" style="display:none;">
+    <div class="card-title">✅ Import Selesai</div>
+    <div class="card-sub">Semua data berhasil diimport. Kamu bisa menutup halaman ini dan mulai menggunakan Optimus.</div>
+    <button class="btn btn-green" onclick="window.location.href='index.html'">Buka Optimus →</button>
+  </div>
+
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCAW1zPA4dIUNMjKf0oaQopX1Pp0KF2mAk",
+  authDomain: "opnimus-e5c3f.firebaseapp.com",
+  projectId: "opnimus-e5c3f",
+  storageBucket: "opnimus-e5c3f.firebasestorage.app",
+  messagingSenderId: "588741330149",
+  appId: "1:588741330149:web:2b876474e592ca9142800c"
+};
+
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+
+// ── DATA MASTER BAHAN ─────────────────────────────────────────
+const MASTER_BAHAN = [
+  {NO:1,NAMA_BAHAN:'Air Mineral Galon',TIPE:'Beli',RAK:'Bar',SATUAN_PAKAI:'galon',SATUAN_BELI:'galon',ISI_PER_SATUAN:1,STOK_HARAPAN:1,PCT_MINIMUM:0.25,SUPPLIER_UTAMA:'Klowor',STATUS:'AKTIF'},
+  {NO:2,NAMA_BAHAN:'Ajinoto Micin 250gr',TIPE:'Beli',RAK:'Rak Bawah Bar',SATUAN_PAKAI:'gr',SATUAN_BELI:'gr',ISI_PER_SATUAN:1,STOK_HARAPAN:3,PCT_MINIMUM:0.25,SUPPLIER_UTAMA:'Distributor',STATUS:'AKTIF'},
+  {NO:3,NAMA_BAHAN:'Batrai Kecil',TIPE:'Beli',RAK:'Meja Kasir',SATUAN_PAKAI:'pcs',SATUAN_BELI:'pcs',ISI_PER_SATUAN:1,STOK_HARAPAN:2,PCT_MINIMUM:0.25,SUPPLIER_UTAMA:'Alfamart',STATUS:'AKTIF'},
+  {NO:4,NAMA_BAHAN:'Bawang Goreng Grade B',TIPE:'Beli',RAK:'Meja Luar - Area 1',SATUAN_PAKAI:'kg',SATUAN_BELI:'kg',ISI_PER_SATUAN:1,STOK_HARAPAN:3,PCT_MINIMUM:0.25,SUPPLIER_UTAMA:'Shopee',STATUS:'AKTIF'},
+  {NO:5,NAMA_BAHAN:'Bawang Putih Kupas',TIPE:'Beli',RAK:'Chiller',SATUAN_PAKAI:'kg',SATUAN_BELI:'kg',ISI_PER_SATUAN:1,STOK_HARAPAN:3,PCT_MINIMUM:0.25,SUPPLIER_UTAMA:'Umik Suhemah',STATUS:'AKTIF'},
+  {NO:6,NAMA_BAHAN:'Beras',TIPE:'Beli',RAK:'Meja Luar - Area 3',SATUAN_PAKAI:'gr',SATUAN_BELI:'kg',ISI_PER_SATUAN:1000,STOK_HARAPAN:10000,PCT_MINIMUM:0.25,SUPPLIER_UTAMA:'Warung Madura (Beras)',STATUS:'AKTIF'},
+  {NO:7,NAMA_BAHAN:'Bumbu Kacang 120ml',TIPE:'Produksi',RAK:'Meja Luar - Area 3',SATUAN_PAKAI:'pcs',SATUAN_BELI:'recipe',ISI_PER_SATUAN:15,STOK_HARAPAN:130,PCT_MINIMUM:0.25,SUPPLIER_UTAMA:'',STATUS:'AKTIF'},
+  {NO:8,NAMA_BAHAN:'Bumbu Kacang 80ml',TIPE:'Produksi',RAK:'Meja Luar - Area 3',SATUAN_PAKAI:'pcs',SATUAN_BELI:'recipe',ISI_PER_SATUAN:1,STOK_HARAPAN:0,PCT_MINIMUM:0.25,SUPPLIER_UTAMA:'',STATUS:'AKTIF'},
+  {NO:9,NAMA_BAHAN:'Cabai Keriting',TIPE:'Beli',RAK:'Chiller',SATUAN_PAKAI:'gr',SATUAN_BELI:'gr',ISI_PER_SATUAN:1,STOK_HARAPAN:500,PCT_MINIMUM:0.25,SUPPLIER_UTAMA:'Umik Suhemah',STATUS:'AKTIF'},
+  {NO:10,NAMA_BAHAN:'Cabai Rawit Petikan',TIPE:'Beli',RAK:'Freezer',SATUAN_PAKAI:'kg',SATUAN_BELI:'kg',ISI_PER_SATUAN:1,STOK_HARAPAN:3,PCT_MINIMUM:0.25,SUPPLIER_UTAMA:'Umik Suhemah',STATUS:'AKTIF'},
+  {NO:11,NAMA_BAHAN:'Cambah',TIPE:'Beli',RAK:'Chiller',SATUAN_PAKAI:'gr',SATUAN_BELI:'gr',ISI_PER_SATUAN:1,STOK_HARAPAN:4000,PCT_MINIMUM:0.25,SUPPLIER_UTAMA:'Mlijo Besar Mas Nanang',STATUS:'AKTIF'},
+  {NO:12,NAMA_BAHAN:'Cling',TIPE:'Beli',RAK:'Meja Luar - Area 4',SATUAN_PAKAI:'pcs',SATUAN_BELI:'pcs',ISI_PER_SATUAN:1,STOK_HARAPAN:3,PCT_MINIMUM:0.25,SUPPLIER_UTAMA:'Yuliamart Buring',STATUS:'AKTIF'},
+  {NO:13,NAMA_BAHAN:'Cup Plastik Hok uk 16oz',TIPE:'Beli',RAK:'Bar',SATUAN_PAKAI:'pack',SATUAN_BELI:'slop',ISI_PER_SATUAN:50,STOK_HARAPAN:2,PCT_MINIMUM:0.25,SUPPLIER_UTAMA:'Cahaya Plastik',STATUS:'AKTIF'},
+  {NO:14,NAMA_BAHAN:'Garam Cap Kapal',TIPE:'Beli',RAK:'Rak Bawah Bar',SATUAN_PAKAI:'bungkus',SATUAN_BELI:'bungkus',ISI_PER_SATUAN:1,STOK_HARAPAN:4,PCT_MINIMUM:0.25,SUPPLIER_UTAMA:'Mlijo Besar Mas Nanang',STATUS:'AKTIF'},
+  {NO:15,NAMA_BAHAN:'Gula Merah Batok',TIPE:'Beli',RAK:'Chiller',SATUAN_PAKAI:'gr',SATUAN_BELI:'bal',ISI_PER_SATUAN:5000,STOK_HARAPAN:5000,PCT_MINIMUM:0.25,SUPPLIER_UTAMA:'Mlijo Besar Mas Nanang',STATUS:'AKTIF'},
+  {NO:16,NAMA_BAHAN:'Gula Pasir',TIPE:'Beli',RAK:'Rak Bawah Bar',SATUAN_PAKAI:'kg',SATUAN_BELI:'kg',ISI_PER_SATUAN:1,STOK_HARAPAN:3,PCT_MINIMUM:0.25,SUPPLIER_UTAMA:'Distributor',STATUS:'AKTIF'},
+  {NO:17,NAMA_BAHAN:'Indomie Goreng Kriukkk Pedas',TIPE:'Beli',RAK:'Meja Luar - Area 2',SATUAN_PAKAI:'pcs',SATUAN_BELI:'dus',ISI_PER_SATUAN:40,STOK_HARAPAN:80,PCT_MINIMUM:0.25,SUPPLIER_UTAMA:'Distributor',STATUS:'AKTIF'},
+  {NO:18,NAMA_BAHAN:'Indomie Goreng Original',TIPE:'Beli',RAK:'Meja Luar - Area 2',SATUAN_PAKAI:'pcs',SATUAN_BELI:'dus',ISI_PER_SATUAN:40,STOK_HARAPAN:80,PCT_MINIMUM:0.25,SUPPLIER_UTAMA:'Distributor',STATUS:'AKTIF'},
+  {NO:19,NAMA_BAHAN:'Jeruk Peras',TIPE:'Beli',RAK:'Bar',SATUAN_PAKAI:'pcs',SATUAN_BELI:'kg',ISI_PER_SATUAN:8,STOK_HARAPAN:40,PCT_MINIMUM:0.25,SUPPLIER_UTAMA:'Shopee',STATUS:'AKTIF'},
+  {NO:20,NAMA_BAHAN:'Joyoboyo Kresek Besar',TIPE:'Beli',RAK:'Meja Luar - Area 1',SATUAN_PAKAI:'pack',SATUAN_BELI:'pack',ISI_PER_SATUAN:1,STOK_HARAPAN:3,PCT_MINIMUM:0.25,SUPPLIER_UTAMA:'Cahaya Plastik',STATUS:'AKTIF'},
+  {NO:21,NAMA_BAHAN:'Joyoboyo Kresek Besar +',TIPE:'Beli',RAK:'Meja Luar - Area 1',SATUAN_PAKAI:'pack',SATUAN_BELI:'pack',ISI_PER_SATUAN:1,STOK_HARAPAN:3,PCT_MINIMUM:0.25,SUPPLIER_UTAMA:'Cahaya Plastik',STATUS:'AKTIF'},
+  {NO:22,NAMA_BAHAN:'Joyoboyo Kresek Besar ++',TIPE:'Beli',RAK:'Meja Luar - Area 1',SATUAN_PAKAI:'pack',SATUAN_BELI:'pack',ISI_PER_SATUAN:1,STOK_HARAPAN:3,PCT_MINIMUM:0.25,SUPPLIER_UTAMA:'Cahaya Plastik',STATUS:'AKTIF'},
+  {NO:23,NAMA_BAHAN:'Joyoboyo Kresek Kecil',TIPE:'Beli',RAK:'Meja Luar - Area 1',SATUAN_PAKAI:'pack',SATUAN_BELI:'pack',ISI_PER_SATUAN:1,STOK_HARAPAN:6,PCT_MINIMUM:0.25,SUPPLIER_UTAMA:'Cahaya Plastik',STATUS:'AKTIF'},
+  {NO:24,NAMA_BAHAN:'Joyoboyo Kresek Sedang',TIPE:'Beli',RAK:'Meja Luar - Area 1',SATUAN_PAKAI:'pack',SATUAN_BELI:'pack',ISI_PER_SATUAN:1,STOK_HARAPAN:6,PCT_MINIMUM:0.25,SUPPLIER_UTAMA:'Cahaya Plastik',STATUS:'AKTIF'},
+  {NO:25,NAMA_BAHAN:'Kacang Tanah',TIPE:'Beli',RAK:'Meja Luar - Area 1',SATUAN_PAKAI:'gr',SATUAN_BELI:'kg',ISI_PER_SATUAN:1000,STOK_HARAPAN:10000,PCT_MINIMUM:0.25,SUPPLIER_UTAMA:'Distributor',STATUS:'AKTIF'},
+  {NO:26,NAMA_BAHAN:'Karet Gelang Kemasan Besar',TIPE:'Beli',RAK:'Meja Luar - Area 1',SATUAN_PAKAI:'pack',SATUAN_BELI:'pack',ISI_PER_SATUAN:1,STOK_HARAPAN:1,PCT_MINIMUM:0.25,SUPPLIER_UTAMA:'Cahaya Plastik',STATUS:'AKTIF'},
+  {NO:27,NAMA_BAHAN:'Kecap Ikan Bader 600ml',TIPE:'Beli',RAK:'Rak Bawah Bar',SATUAN_PAKAI:'pcs',SATUAN_BELI:'dus',ISI_PER_SATUAN:12,STOK_HARAPAN:12,PCT_MINIMUM:0.25,SUPPLIER_UTAMA:'Distributor',STATUS:'AKTIF'},
+  {NO:28,NAMA_BAHAN:'Kecap Manis ABC 800ml',TIPE:'Beli',RAK:'Rak Bawah Bar',SATUAN_PAKAI:'pcs',SATUAN_BELI:'pcs',ISI_PER_SATUAN:1,STOK_HARAPAN:12,PCT_MINIMUM:0.25,SUPPLIER_UTAMA:'Mlijo Besar Mas Nanang',STATUS:'AKTIF'},
+  {NO:29,NAMA_BAHAN:'Kertas Minyak',TIPE:'Beli',RAK:'Meja Luar - Area 1',SATUAN_PAKAI:'pack',SATUAN_BELI:'pack',ISI_PER_SATUAN:1,STOK_HARAPAN:2,PCT_MINIMUM:0.25,SUPPLIER_UTAMA:'Cahaya Plastik',STATUS:'AKTIF'},
+  {NO:30,NAMA_BAHAN:'Kertas Thermal 58mm',TIPE:'Beli',RAK:'Meja Kasir',SATUAN_PAKAI:'pcs',SATUAN_BELI:'pcs',ISI_PER_SATUAN:1,STOK_HARAPAN:20,PCT_MINIMUM:0.25,SUPPLIER_UTAMA:'Shopee',STATUS:'AKTIF'},
+  {NO:31,NAMA_BAHAN:'Kerupuk Udang Unyil Kecil',TIPE:'Beli',RAK:'Meja Luar - Area 1',SATUAN_PAKAI:'gr',SATUAN_BELI:'bal',ISI_PER_SATUAN:5000,STOK_HARAPAN:10000,PCT_MINIMUM:0.25,SUPPLIER_UTAMA:'Distributor',STATUS:'AKTIF'},
+  {NO:32,NAMA_BAHAN:'Lontong',TIPE:'Beli',RAK:'Meja Luar - Area 1',SATUAN_PAKAI:'pcs',SATUAN_BELI:'pcs',ISI_PER_SATUAN:1,STOK_HARAPAN:60,PCT_MINIMUM:0.25,SUPPLIER_UTAMA:'Supplier Lontong',STATUS:'AKTIF'},
+  {NO:33,NAMA_BAHAN:'Minyak Goreng 1L',TIPE:'Beli',RAK:'Meja Luar - Area 1',SATUAN_PAKAI:'pcs',SATUAN_BELI:'pcs',ISI_PER_SATUAN:1,STOK_HARAPAN:8,PCT_MINIMUM:0.25,SUPPLIER_UTAMA:'Toko Minyak',STATUS:'AKTIF'},
+  {NO:34,NAMA_BAHAN:'Minyak Goreng 2L',TIPE:'Beli',RAK:'Meja Luar - Area 1',SATUAN_PAKAI:'pcs',SATUAN_BELI:'pcs',ISI_PER_SATUAN:1,STOK_HARAPAN:4,PCT_MINIMUM:0.25,SUPPLIER_UTAMA:'Toko Minyak',STATUS:'AKTIF'},
+  {NO:35,NAMA_BAHAN:'Nasi Putih',TIPE:'Produksi',RAK:'Chiller',SATUAN_PAKAI:'gr',SATUAN_BELI:'recipe',ISI_PER_SATUAN:1,STOK_HARAPAN:4000,PCT_MINIMUM:0.25,SUPPLIER_UTAMA:'',STATUS:'AKTIF'},
+  {NO:36,NAMA_BAHAN:'Petis',TIPE:'Beli',RAK:'Meja Kasir',SATUAN_PAKAI:'pcs',SATUAN_BELI:'dus',ISI_PER_SATUAN:20,STOK_HARAPAN:24,PCT_MINIMUM:0.25,SUPPLIER_UTAMA:'Mlijo Kecil',STATUS:'AKTIF'},
+  {NO:37,NAMA_BAHAN:'Plastik Petromax Ukuran 1/2kg',TIPE:'Beli',RAK:'Meja Luar - Area 1',SATUAN_PAKAI:'pack',SATUAN_BELI:'pack',ISI_PER_SATUAN:1,STOK_HARAPAN:15,PCT_MINIMUM:0.25,SUPPLIER_UTAMA:'Cahaya Plastik',STATUS:'AKTIF'},
+  {NO:38,NAMA_BAHAN:'Royco Sapi',TIPE:'Beli',RAK:'Rak Bawah Bar',SATUAN_PAKAI:'pcs',SATUAN_BELI:'pcs',ISI_PER_SATUAN:1,STOK_HARAPAN:4,PCT_MINIMUM:0.25,SUPPLIER_UTAMA:'Yuliamart Buring',STATUS:'AKTIF'},
+  {NO:39,NAMA_BAHAN:'Sedotan Hitam Bengkok',TIPE:'Beli',RAK:'Bar',SATUAN_PAKAI:'pack',SATUAN_BELI:'pack',ISI_PER_SATUAN:1,STOK_HARAPAN:2,PCT_MINIMUM:0.25,SUPPLIER_UTAMA:'Cahaya Plastik',STATUS:'AKTIF'},
+  {NO:40,NAMA_BAHAN:'Seledri',TIPE:'Beli',RAK:'Chiller',SATUAN_PAKAI:'gr',SATUAN_BELI:'gr',ISI_PER_SATUAN:1,STOK_HARAPAN:500,PCT_MINIMUM:0.25,SUPPLIER_UTAMA:'Mlijo Besar Mas Nanang',STATUS:'AKTIF'},
+  {NO:41,NAMA_BAHAN:'Sendok Plastik',TIPE:'Beli',RAK:'Meja Luar - Area 1',SATUAN_PAKAI:'pack',SATUAN_BELI:'pack',ISI_PER_SATUAN:1,STOK_HARAPAN:2,PCT_MINIMUM:0.25,SUPPLIER_UTAMA:'Cahaya Plastik',STATUS:'AKTIF'},
+  {NO:42,NAMA_BAHAN:'Spidol Permanen',TIPE:'Beli',RAK:'Meja Luar - Area 1',SATUAN_PAKAI:'pcs',SATUAN_BELI:'dus',ISI_PER_SATUAN:12,STOK_HARAPAN:4,PCT_MINIMUM:0.25,SUPPLIER_UTAMA:'',STATUS:'AKTIF'},
+  {NO:43,NAMA_BAHAN:'Sterofoam',TIPE:'Beli',RAK:'Meja Luar - Area 2',SATUAN_PAKAI:'pack',SATUAN_BELI:'pack',ISI_PER_SATUAN:1,STOK_HARAPAN:2,PCT_MINIMUM:0.25,SUPPLIER_UTAMA:'Wijaya Plastik',STATUS:'AKTIF'},
+  {NO:44,NAMA_BAHAN:'Sunlight',TIPE:'Beli',RAK:'Meja Luar - Area 4',SATUAN_PAKAI:'pcs',SATUAN_BELI:'pcs',ISI_PER_SATUAN:1,STOK_HARAPAN:2,PCT_MINIMUM:0.25,SUPPLIER_UTAMA:'Bu Endang',STATUS:'AKTIF'},
+  {NO:45,NAMA_BAHAN:'Tahu Putih',TIPE:'Beli',RAK:'Chiller',SATUAN_PAKAI:'pcs',SATUAN_BELI:'pcs',ISI_PER_SATUAN:1,STOK_HARAPAN:25,PCT_MINIMUM:0.25,SUPPLIER_UTAMA:'Mlijo Besar Mas Nanang',STATUS:'AKTIF'},
+  {NO:46,NAMA_BAHAN:'Teh Bola Api 999',TIPE:'Beli',RAK:'Rak Bawah Bar',SATUAN_PAKAI:'pack',SATUAN_BELI:'bal',ISI_PER_SATUAN:10,STOK_HARAPAN:20,PCT_MINIMUM:0.25,SUPPLIER_UTAMA:'Mlijo Besar Mas Nanang',STATUS:'AKTIF'},
+  {NO:47,NAMA_BAHAN:'Teh Naga',TIPE:'Beli',RAK:'Rak Bawah Bar',SATUAN_PAKAI:'pack',SATUAN_BELI:'bal',ISI_PER_SATUAN:50,STOK_HARAPAN:50,PCT_MINIMUM:0.25,SUPPLIER_UTAMA:'Mlijo Besar Mas Nanang',STATUS:'AKTIF'},
+  {NO:48,NAMA_BAHAN:'Telur Ayam',TIPE:'Beli',RAK:'Meja Luar - Area 2',SATUAN_PAKAI:'butir',SATUAN_BELI:'peti',ISI_PER_SATUAN:30,STOK_HARAPAN:480,PCT_MINIMUM:0.25,SUPPLIER_UTAMA:'Andre Telur',STATUS:'AKTIF'},
+  {NO:49,NAMA_BAHAN:'Tissue Pop Kecil',TIPE:'Beli',RAK:'Meja Kasir',SATUAN_PAKAI:'pack',SATUAN_BELI:'bal',ISI_PER_SATUAN:10,STOK_HARAPAN:10,PCT_MINIMUM:0.25,SUPPLIER_UTAMA:'Cahaya Plastik',STATUS:'AKTIF'},
+  {NO:50,NAMA_BAHAN:'Wipol',TIPE:'Beli',RAK:'Meja Luar - Area 4',SATUAN_PAKAI:'pcs',SATUAN_BELI:'pcs',ISI_PER_SATUAN:1,STOK_HARAPAN:2,PCT_MINIMUM:0.25,SUPPLIER_UTAMA:'Bu Endang',STATUS:'AKTIF'},
+  {NO:51,NAMA_BAHAN:'Es Batu',TIPE:'Beli',RAK:'Freezer',SATUAN_PAKAI:'pack',SATUAN_BELI:'pack',ISI_PER_SATUAN:1,STOK_HARAPAN:3,PCT_MINIMUM:0.25,SUPPLIER_UTAMA:'Klowor',STATUS:'AKTIF'},
+];
+
+// ── DATA SUPPLIER ─────────────────────────────────────────────
+const MASTER_SUPPLIER = [
+  {NO:1,NAMA_SUPPLIER:'Mlijo Besar Mas Nanang',NAMA_KONTAK:'Mas Nanang',NO_WA:'',HARI_KIRIM:'Tidak Bisa Kirim',MIN_ORDER:'',TEMPLATE_PEMBUKA:'',TEMPLATE_PENUTUP:''},
+  {NO:2,NAMA_SUPPLIER:'Mlijo Kecil',NAMA_KONTAK:'',NO_WA:'',HARI_KIRIM:'Tidak Bisa Kirim',MIN_ORDER:'',TEMPLATE_PEMBUKA:'',TEMPLATE_PENUTUP:''},
+  {NO:3,NAMA_SUPPLIER:'Toko Minyak',NAMA_KONTAK:'',NO_WA:'',HARI_KIRIM:'Tidak Bisa Kirim',MIN_ORDER:'',TEMPLATE_PEMBUKA:'',TEMPLATE_PENUTUP:''},
+  {NO:4,NAMA_SUPPLIER:'Bu Endang',NAMA_KONTAK:'',NO_WA:'',HARI_KIRIM:'Tidak Bisa Kirim',MIN_ORDER:'',TEMPLATE_PEMBUKA:'',TEMPLATE_PENUTUP:''},
+  {NO:5,NAMA_SUPPLIER:'Depan Bu Endang',NAMA_KONTAK:'',NO_WA:'',HARI_KIRIM:'Tidak Bisa Kirim',MIN_ORDER:'',TEMPLATE_PEMBUKA:'',TEMPLATE_PENUTUP:''},
+  {NO:6,NAMA_SUPPLIER:'Wijaya Plastik',NAMA_KONTAK:'',NO_WA:'',HARI_KIRIM:'Tidak Bisa Kirim',MIN_ORDER:'',TEMPLATE_PEMBUKA:'',TEMPLATE_PENUTUP:''},
+  {NO:7,NAMA_SUPPLIER:'Andre Telur',NAMA_KONTAK:'Andre',NO_WA:'6281328878542',HARI_KIRIM:'Bebas',MIN_ORDER:'1 Peti Telur',TEMPLATE_PEMBUKA:'',TEMPLATE_PENUTUP:''},
+  {NO:8,NAMA_SUPPLIER:'Umik Suhemah',NAMA_KONTAK:'Umik Suhemah',NO_WA:'6281916807071',HARI_KIRIM:'Tidak Bisa Kirim',MIN_ORDER:'',TEMPLATE_PEMBUKA:'',TEMPLATE_PENUTUP:''},
+  {NO:9,NAMA_SUPPLIER:'Cahaya Plastik',NAMA_KONTAK:'',NO_WA:'',HARI_KIRIM:'Tidak Bisa Kirim',MIN_ORDER:'',TEMPLATE_PEMBUKA:'',TEMPLATE_PENUTUP:''},
+  {NO:10,NAMA_SUPPLIER:'Distributor',NAMA_KONTAK:'',NO_WA:'',HARI_KIRIM:'Tidak Bisa Kirim',MIN_ORDER:'',TEMPLATE_PEMBUKA:'',TEMPLATE_PENUTUP:''},
+  {NO:11,NAMA_SUPPLIER:'Warung Madura (Beras)',NAMA_KONTAK:'',NO_WA:'',HARI_KIRIM:'Tidak Bisa Kirim',MIN_ORDER:'',TEMPLATE_PEMBUKA:'',TEMPLATE_PENUTUP:''},
+  {NO:12,NAMA_SUPPLIER:'Yuliamart Buring',NAMA_KONTAK:'',NO_WA:'',HARI_KIRIM:'Tidak Bisa Kirim',MIN_ORDER:'',TEMPLATE_PEMBUKA:'',TEMPLATE_PENUTUP:''},
+  {NO:13,NAMA_SUPPLIER:'Klowor',NAMA_KONTAK:'',NO_WA:'',HARI_KIRIM:'Tidak Bisa Kirim',MIN_ORDER:'',TEMPLATE_PEMBUKA:'',TEMPLATE_PENUTUP:''},
+  {NO:14,NAMA_SUPPLIER:'Alfamart',NAMA_KONTAK:'',NO_WA:'',HARI_KIRIM:'Tidak Bisa Kirim',MIN_ORDER:'',TEMPLATE_PEMBUKA:'',TEMPLATE_PENUTUP:''},
+  {NO:15,NAMA_SUPPLIER:'Shopee',NAMA_KONTAK:'',NO_WA:'',HARI_KIRIM:'Tidak Bisa Kirim',MIN_ORDER:'',TEMPLATE_PEMBUKA:'',TEMPLATE_PENUTUP:''},
+  {NO:16,NAMA_SUPPLIER:'Supplier Lontong',NAMA_KONTAK:'',NO_WA:'',HARI_KIRIM:'Tidak Bisa Kirim',MIN_ORDER:'',TEMPLATE_PEMBUKA:'',TEMPLATE_PENUTUP:''},
+];
+
+// ── DATA USERS ────────────────────────────────────────────────
+const USERS = [
+  {username:'pakSudibyo', password:'owner123', role:'owner', nama:'Pak Sudibyo'},
+  {username:'staff1',     password:'staff123', role:'staff',  nama:'Staff Dapur'},
+];
+
+// ── LOG HELPER ────────────────────────────────────────────────
+function log(msg, type='info') {
+  const el = document.getElementById('log');
+  const line = document.createElement('div');
+  line.className = 'log-line ' + type;
+  line.textContent = new Date().toLocaleTimeString('id-ID') + ' — ' + msg;
+  el.appendChild(line);
+  el.scrollTop = el.scrollHeight;
+}
+
+function setProgress(done, total) {
+  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-text').textContent = `${done} / ${total} (${pct}%)`;
+}
+
+// ── SEED ─────────────────────────────────────────────────────
+window.startSeed = async function() {
+  const btn = document.getElementById('btn-seed');
+  const btnClear = document.getElementById('btn-clear');
+  btn.disabled = true;
+  btnClear.disabled = true;
+  document.getElementById('prog-wrap').style.display = 'block';
+
+  const total = MASTER_BAHAN.length + MASTER_SUPPLIER.length + USERS.length;
+  let done = 0;
+
+  log('Mulai import data...', 'info');
+
+  // Import bahan
+  log(`Mengimport ${MASTER_BAHAN.length} bahan baku...`, 'info');
+  for (const b of MASTER_BAHAN) {
+    try {
+      await addDoc(collection(db, 'master_bahan'), b);
+      done++;
+      setProgress(done, total);
+      log(`✓ Bahan: ${b.NAMA_BAHAN}`, 'ok');
+    } catch(e) {
+      log(`✗ Gagal: ${b.NAMA_BAHAN} — ${e.message}`, 'err');
+    }
+  }
+
+  // Import supplier
+  log(`Mengimport ${MASTER_SUPPLIER.length} supplier...`, 'info');
+  for (const s of MASTER_SUPPLIER) {
+    try {
+      await addDoc(collection(db, 'master_supplier'), s);
+      done++;
+      setProgress(done, total);
+      log(`✓ Supplier: ${s.NAMA_SUPPLIER}`, 'ok');
+    } catch(e) {
+      log(`✗ Gagal: ${s.NAMA_SUPPLIER} — ${e.message}`, 'err');
+    }
+  }
+
+  // Import users
+  log(`Mengimport ${USERS.length} user...`, 'info');
+  for (const u of USERS) {
+    try {
+      await addDoc(collection(db, 'users'), u);
+      done++;
+      setProgress(done, total);
+      log(`✓ User: ${u.username} (${u.role})`, 'ok');
+    } catch(e) {
+      log(`✗ Gagal: ${u.username} — ${e.message}`, 'err');
+    }
+  }
+
+  log('✅ Import selesai! Total: ' + done + '/' + total + ' berhasil.', 'ok');
+  document.getElementById('card-done').style.display = 'block';
+  document.getElementById('card-done').scrollIntoView({ behavior: 'smooth' });
+};
+
+// ── CLEAR ─────────────────────────────────────────────────────
+window.startClear = async function() {
+  if (!confirm('⚠️ Yakin hapus SEMUA data di Firestore? Tindakan ini tidak bisa dibatalkan.')) return;
+
+  const btn = document.getElementById('btn-seed');
+  const btnClear = document.getElementById('btn-clear');
+  btn.disabled = true;
+  btnClear.disabled = true;
+  document.getElementById('prog-wrap').style.display = 'block';
+
+  const colls = ['master_bahan', 'master_supplier', 'users', 'log_stok', 'log_po', 'config'];
+  log('Menghapus semua data...', 'warn');
+
+  for (const col of colls) {
+    try {
+      const snap = await getDocs(collection(db, col));
+      let count = 0;
+      for (const d of snap.docs) {
+        await deleteDoc(doc(db, col, d.id));
+        count++;
+      }
+      log(`✓ Koleksi "${col}" — ${count} dokumen dihapus`, 'ok');
+    } catch(e) {
+      log(`✗ Gagal hapus "${col}": ${e.message}`, 'err');
+    }
+  }
+
+  log('✅ Reset selesai. Kamu bisa import ulang sekarang.', 'ok');
+  btn.disabled = false;
+  btnClear.disabled = false;
+};
+</script>
+</body>
+</html>
