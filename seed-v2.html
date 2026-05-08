@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Optimus v2 — Seed Data</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --navy:#0f1f3d;--accent:#2563eb;--accent-l:#3b82f6;
+  --green:#16a34a;--red:#dc2626;--amber:#d97706;
+  --off:#f8faff;--border:rgba(15,31,61,0.10);
+  --text:#0f1f3d;--text2:#4a5a7a;--text3:#8a9ab8;
+  --font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+}
+body{font-family:var(--font);background:var(--off);color:var(--text);min-height:100vh;padding:24px 16px;}
+.wrap{max-width:560px;margin:0 auto;}
+.logo{display:flex;align-items:center;gap:10px;margin-bottom:28px;}
+.logo-mark{width:36px;height:36px;background:var(--navy);border-radius:10px;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:16px;}
+.logo-name{font-size:20px;font-weight:700;color:var(--navy);}
+.logo-ver{font-size:10px;background:var(--accent-l);color:white;padding:2px 8px;border-radius:20px;margin-left:4px;vertical-align:middle;}
+.logo-sub{font-size:11px;color:var(--text3);margin-top:1px;}
+.card{background:white;border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:16px;box-shadow:0 2px 12px rgba(15,31,61,0.06);}
+.card-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px;}
+.card-sub{font-size:12px;color:var(--text3);margin-bottom:16px;line-height:1.6;}
+.warning{background:rgba(217,119,6,0.08);border:1px solid rgba(217,119,6,0.2);border-radius:10px;padding:12px 14px;font-size:12px;color:#92400e;margin-bottom:16px;line-height:1.6;}
+.btn{width:100%;height:46px;border-radius:11px;font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all 0.2s;margin-bottom:8px;}
+.btn-primary{background:var(--navy);color:white;}
+.btn-primary:hover{background:#1a3260;}
+.btn-primary:disabled{opacity:0.5;cursor:not-allowed;}
+.btn-danger{background:var(--red);color:white;}
+.btn-danger:disabled{opacity:0.5;cursor:not-allowed;}
+.btn-green{background:var(--green);color:white;}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;}
+.stat{background:var(--off);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center;}
+.stat-n{font-size:22px;font-weight:700;color:var(--navy);font-family:var(--mono);}
+.stat-l{font-size:10px;color:var(--text3);margin-top:2px;}
+.progress-wrap{margin:12px 0;}
+.progress-track{height:8px;background:rgba(15,31,61,0.08);border-radius:10px;overflow:hidden;}
+.progress-fill{height:100%;border-radius:10px;background:linear-gradient(90deg,var(--accent),var(--accent-l));transition:width 0.3s;width:0%;}
+.progress-text{font-size:11px;color:var(--text3);margin-top:6px;font-family:var(--mono);}
+.log{background:#0f1f3d;border-radius:12px;padding:16px;font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.7);min-height:200px;max-height:380px;overflow-y:auto;line-height:1.8;}
+.log-line{padding:1px 0;}
+.log-line.ok{color:#4ade80;}
+.log-line.err{color:#f87171;}
+.log-line.info{color:#60a5fa;}
+.log-line.warn{color:#fbbf24;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo">
+    <div class="logo-mark">O</div>
+    <div>
+      <div class="logo-name">Optimus <span class="logo-ver">v2</span></div>
+      <div class="logo-sub">Database Seeder — Supabase Edition</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📦 Import Master Data</div>
+    <div class="card-sub">Tool ini mengisi tabel Supabase dengan data awal:<br>51 bahan baku · 16 supplier</div>
+    <div class="warning">⚠️ <strong>Jalankan hanya sekali.</strong> Kalau mau reset, gunakan tombol "Hapus Semua Data" dulu.</div>
+    <div class="stat-grid">
+      <div class="stat"><div class="stat-n">51</div><div class="stat-l">Master Bahan</div></div>
+      <div class="stat"><div class="stat-n">16</div><div class="stat-l">Supplier</div></div>
+      <div class="stat"><div class="stat-n">2</div><div class="stat-l">User</div></div>
+    </div>
+    <button class="btn btn-primary" id="btn-seed" onclick="startSeed()">▶ Mulai Import Data</button>
+    <button class="btn btn-danger" id="btn-clear" onclick="startClear()">🗑 Hapus Semua Data (Reset)</button>
+    <div class="progress-wrap" id="prog-wrap" style="display:none;">
+      <div class="progress-track"><div class="progress-fill" id="prog-fill"></div></div>
+      <div class="progress-text" id="prog-text">0 / 0</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📋 Log</div>
+    <div class="log" id="log"><div class="log-line info">Siap. Klik "Mulai Import Data" untuk memulai.</div></div>
+  </div>
+
+  <div class="card" id="card-done" style="display:none;">
+    <div class="card-title">✅ Import Selesai</div>
+    <div class="card-sub">Semua data berhasil diimport ke Supabase. Kamu bisa mulai menggunakan Optimus v2.</div>
+    <button class="btn btn-green" onclick="window.location.href='index-v2.html'">Buka Optimus v2 →</button>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://ltpzxgjgkhneogydgezp.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0cHp4Z2pna2huZW9neWRnZXpwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyMTk1MzMsImV4cCI6MjA5Mzc5NTUzM30.ISSkjFBioakcH1to7p_y26VWqKyYsndnvC11MME_m30';
+
+async function sbFetch(path, options={}) {
+  const res = await fetch(SUPABASE_URL+'/rest/v1/'+path, {
+    ...options,
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': 'Bearer '+SUPABASE_KEY,
+      'Content-Type': 'application/json',
+      'Prefer': options.prefer||'',
+      ...(options.headers||{})
+    }
+  });
+  if(!res.ok) throw new Error(await res.text());
+  const text = await res.text();
+  return text ? JSON.parse(text) : null;
+}
+
+const MASTER_BAHAN = [
+  {no:1,nama_bahan:'Air Mineral Galon',tipe:'Beli',rak:'Bar',satuan_pakai:'galon',satuan_beli:'galon',isi_per_satuan:1,stok_harapan:1,pct_minimum:0.25,supplier_utama:'Klowor',status:'AKTIF'},
+  {no:2,nama_bahan:'Ajinoto Micin 250gr',tipe:'Beli',rak:'Rak Bawah Bar',satuan_pakai:'gr',satuan_beli:'gr',isi_per_satuan:1,stok_harapan:3,pct_minimum:0.25,supplier_utama:'Distributor',status:'AKTIF'},
+  {no:3,nama_bahan:'Batrai Kecil',tipe:'Beli',rak:'Meja Kasir',satuan_pakai:'pcs',satuan_beli:'pcs',isi_per_satuan:1,stok_harapan:2,pct_minimum:0.25,supplier_utama:'Alfamart',status:'AKTIF'},
+  {no:4,nama_bahan:'Bawang Goreng Grade B',tipe:'Beli',rak:'Meja Luar - Area 1',satuan_pakai:'kg',satuan_beli:'kg',isi_per_satuan:1,stok_harapan:3,pct_minimum:0.25,supplier_utama:'Shopee',status:'AKTIF'},
+  {no:5,nama_bahan:'Bawang Putih Kupas',tipe:'Beli',rak:'Chiller',satuan_pakai:'kg',satuan_beli:'kg',isi_per_satuan:1,stok_harapan:3,pct_minimum:0.25,supplier_utama:'Umik Suhemah',status:'AKTIF'},
+  {no:6,nama_bahan:'Beras',tipe:'Beli',rak:'Meja Luar - Area 3',satuan_pakai:'gr',satuan_beli:'kg',isi_per_satuan:1000,stok_harapan:10000,pct_minimum:0.25,supplier_utama:'Warung Madura (Beras)',status:'AKTIF'},
+  {no:7,nama_bahan:'Bumbu Kacang 120ml',tipe:'Produksi',rak:'Meja Luar - Area 3',satuan_pakai:'pcs',satuan_beli:'recipe',isi_per_satuan:15,stok_harapan:130,pct_minimum:0.25,supplier_utama:'',status:'AKTIF'},
+  {no:8,nama_bahan:'Bumbu Kacang 80ml',tipe:'Produksi',rak:'Meja Luar - Area 3',satuan_pakai:'pcs',satuan_beli:'recipe',isi_per_satuan:1,stok_harapan:0,pct_minimum:0.25,supplier_utama:'',status:'AKTIF'},
+  {no:9,nama_bahan:'Cabai Keriting',tipe:'Beli',rak:'Chiller',satuan_pakai:'gr',satuan_beli:'gr',isi_per_satuan:1,stok_harapan:500,pct_minimum:0.25,supplier_utama:'Umik Suhemah',status:'AKTIF'},
+  {no:10,nama_bahan:'Cabai Rawit Petikan',tipe:'Beli',rak:'Freezer',satuan_pakai:'kg',satuan_beli:'kg',isi_per_satuan:1,stok_harapan:3,pct_minimum:0.25,supplier_utama:'Umik Suhemah',status:'AKTIF'},
+  {no:11,nama_bahan:'Cambah',tipe:'Beli',rak:'Chiller',satuan_pakai:'gr',satuan_beli:'gr',isi_per_satuan:1,stok_harapan:4000,pct_minimum:0.25,supplier_utama:'Mlijo Besar Mas Nanang',status:'AKTIF'},
+  {no:12,nama_bahan:'Cling',tipe:'Beli',rak:'Meja Luar - Area 4',satuan_pakai:'pcs',satuan_beli:'pcs',isi_per_satuan:1,stok_harapan:3,pct_minimum:0.25,supplier_utama:'Yuliamart Buring',status:'AKTIF'},
+  {no:13,nama_bahan:'Cup Plastik Hok uk 16oz',tipe:'Beli',rak:'Bar',satuan_pakai:'pack',satuan_beli:'slop',isi_per_satuan:50,stok_harapan:2,pct_minimum:0.25,supplier_utama:'Cahaya Plastik',status:'AKTIF'},
+  {no:14,nama_bahan:'Garam Cap Kapal',tipe:'Beli',rak:'Rak Bawah Bar',satuan_pakai:'bungkus',satuan_beli:'bungkus',isi_per_satuan:1,stok_harapan:4,pct_minimum:0.25,supplier_utama:'Mlijo Besar Mas Nanang',status:'AKTIF'},
+  {no:15,nama_bahan:'Gula Merah Batok',tipe:'Beli',rak:'Chiller',satuan_pakai:'gr',satuan_beli:'bal',isi_per_satuan:5000,stok_harapan:5000,pct_minimum:0.25,supplier_utama:'Mlijo Besar Mas Nanang',status:'AKTIF'},
+  {no:16,nama_bahan:'Gula Pasir',tipe:'Beli',rak:'Rak Bawah Bar',satuan_pakai:'kg',satuan_beli:'kg',isi_per_satuan:1,stok_harapan:3,pct_minimum:0.25,supplier_utama:'Distributor',status:'AKTIF'},
+  {no:17,nama_bahan:'Indomie Goreng Kriukkk Pedas',tipe:'Beli',rak:'Meja Luar - Area 2',satuan_pakai:'pcs',satuan_beli:'dus',isi_per_satuan:40,stok_harapan:80,pct_minimum:0.25,supplier_utama:'Distributor',status:'AKTIF'},
+  {no:18,nama_bahan:'Indomie Goreng Original',tipe:'Beli',rak:'Meja Luar - Area 2',satuan_pakai:'pcs',satuan_beli:'dus',isi_per_satuan:40,stok_harapan:80,pct_minimum:0.25,supplier_utama:'Distributor',status:'AKTIF'},
+  {no:19,nama_bahan:'Jeruk Peras',tipe:'Beli',rak:'Bar',satuan_pakai:'pcs',satuan_beli:'kg',isi_per_satuan:8,stok_harapan:40,pct_minimum:0.25,supplier_utama:'Shopee',status:'AKTIF'},
+  {no:20,nama_bahan:'Joyoboyo Kresek Besar',tipe:'Beli',rak:'Meja Luar - Area 1',satuan_pakai:'pack',satuan_beli:'pack',isi_per_satuan:1,stok_harapan:3,pct_minimum:0.25,supplier_utama:'Cahaya Plastik',status:'AKTIF'},
+  {no:21,nama_bahan:'Joyoboyo Kresek Besar +',tipe:'Beli',rak:'Meja Luar - Area 1',satuan_pakai:'pack',satuan_beli:'pack',isi_per_satuan:1,stok_harapan:3,pct_minimum:0.25,supplier_utama:'Cahaya Plastik',status:'AKTIF'},
+  {no:22,nama_bahan:'Joyoboyo Kresek Besar ++',tipe:'Beli',rak:'Meja Luar - Area 1',satuan_pakai:'pack',satuan_beli:'pack',isi_per_satuan:1,stok_harapan:3,pct_minimum:0.25,supplier_utama:'Cahaya Plastik',status:'AKTIF'},
+  {no:23,nama_bahan:'Joyoboyo Kresek Kecil',tipe:'Beli',rak:'Meja Luar - Area 1',satuan_pakai:'pack',satuan_beli:'pack',isi_per_satuan:1,stok_harapan:6,pct_minimum:0.25,supplier_utama:'Cahaya Plastik',status:'AKTIF'},
+  {no:24,nama_bahan:'Joyoboyo Kresek Sedang',tipe:'Beli',rak:'Meja Luar - Area 1',satuan_pakai:'pack',satuan_beli:'pack',isi_per_satuan:1,stok_harapan:6,pct_minimum:0.25,supplier_utama:'Cahaya Plastik',status:'AKTIF'},
+  {no:25,nama_bahan:'Kacang Tanah',tipe:'Beli',rak:'Meja Luar - Area 1',satuan_pakai:'gr',satuan_beli:'kg',isi_per_satuan:1000,stok_harapan:10000,pct_minimum:0.25,supplier_utama:'Distributor',status:'AKTIF'},
+  {no:26,nama_bahan:'Karet Gelang Kemasan Besar',tipe:'Beli',rak:'Meja Luar - Area 1',satuan_pakai:'pack',satuan_beli:'pack',isi_per_satuan:1,stok_harapan:1,pct_minimum:0.25,supplier_utama:'Cahaya Plastik',status:'AKTIF'},
+  {no:27,nama_bahan:'Kecap Ikan Bader 600ml',tipe:'Beli',rak:'Rak Bawah Bar',satuan_pakai:'pcs',satuan_beli:'dus',isi_per_satuan:12,stok_harapan:12,pct_minimum:0.25,supplier_utama:'Distributor',status:'AKTIF'},
+  {no:28,nama_bahan:'Kecap Manis ABC 800ml',tipe:'Beli',rak:'Rak Bawah Bar',satuan_pakai:'pcs',satuan_beli:'pcs',isi_per_satuan:1,stok_harapan:12,pct_minimum:0.25,supplier_utama:'Mlijo Besar Mas Nanang',status:'AKTIF'},
+  {no:29,nama_bahan:'Kertas Minyak',tipe:'Beli',rak:'Meja Luar - Area 1',satuan_pakai:'pack',satuan_beli:'pack',isi_per_satuan:1,stok_harapan:2,pct_minimum:0.25,supplier_utama:'Cahaya Plastik',status:'AKTIF'},
+  {no:30,nama_bahan:'Kertas Thermal 58mm',tipe:'Beli',rak:'Meja Kasir',satuan_pakai:'pcs',satuan_beli:'pcs',isi_per_satuan:1,stok_harapan:20,pct_minimum:0.25,supplier_utama:'Shopee',status:'AKTIF'},
+  {no:31,nama_bahan:'Kerupuk Udang Unyil Kecil',tipe:'Beli',rak:'Meja Luar - Area 1',satuan_pakai:'gr',satuan_beli:'bal',isi_per_satuan:5000,stok_harapan:10000,pct_minimum:0.25,supplier_utama:'Distributor',status:'AKTIF'},
+  {no:32,nama_bahan:'Lontong',tipe:'Beli',rak:'Meja Luar - Area 1',satuan_pakai:'pcs',satuan_beli:'pcs',isi_per_satuan:1,stok_harapan:60,pct_minimum:0.25,supplier_utama:'Supplier Lontong',status:'AKTIF'},
+  {no:33,nama_bahan:'Minyak Goreng 1L',tipe:'Beli',rak:'Meja Luar - Area 1',satuan_pakai:'pcs',satuan_beli:'pcs',isi_per_satuan:1,stok_harapan:8,pct_minimum:0.25,supplier_utama:'Toko Minyak',status:'AKTIF'},
+  {no:34,nama_bahan:'Minyak Goreng 2L',tipe:'Beli',rak:'Meja Luar - Area 1',satuan_pakai:'pcs',satuan_beli:'pcs',isi_per_satuan:1,stok_harapan:4,pct_minimum:0.25,supplier_utama:'Toko Minyak',status:'AKTIF'},
+  {no:35,nama_bahan:'Nasi Putih',tipe:'Produksi',rak:'Chiller',satuan_pakai:'gr',satuan_beli:'recipe',isi_per_satuan:1,stok_harapan:4000,pct_minimum:0.25,supplier_utama:'',status:'AKTIF'},
+  {no:36,nama_bahan:'Petis',tipe:'Beli',rak:'Meja Kasir',satuan_pakai:'pcs',satuan_beli:'dus',isi_per_satuan:20,stok_harapan:24,pct_minimum:0.25,supplier_utama:'Mlijo Kecil',status:'AKTIF'},
+  {no:37,nama_bahan:'Plastik Petromax Ukuran 1/2kg',tipe:'Beli',rak:'Meja Luar - Area 1',satuan_pakai:'pack',satuan_beli:'pack',isi_per_satuan:1,stok_harapan:15,pct_minimum:0.25,supplier_utama:'Cahaya Plastik',status:'AKTIF'},
+  {no:38,nama_bahan:'Royco Sapi',tipe:'Beli',rak:'Rak Bawah Bar',satuan_pakai:'pcs',satuan_beli:'pcs',isi_per_satuan:1,stok_harapan:4,pct_minimum:0.25,supplier_utama:'Yuliamart Buring',status:'AKTIF'},
+  {no:39,nama_bahan:'Sedotan Hitam Bengkok',tipe:'Beli',rak:'Bar',satuan_pakai:'pack',satuan_beli:'pack',isi_per_satuan:1,stok_harapan:2,pct_minimum:0.25,supplier_utama:'Cahaya Plastik',status:'AKTIF'},
+  {no:40,nama_bahan:'Seledri',tipe:'Beli',rak:'Chiller',satuan_pakai:'gr',satuan_beli:'gr',isi_per_satuan:1,stok_harapan:500,pct_minimum:0.25,supplier_utama:'Mlijo Besar Mas Nanang',status:'AKTIF'},
+  {no:41,nama_bahan:'Sendok Plastik',tipe:'Beli',rak:'Meja Luar - Area 1',satuan_pakai:'pack',satuan_beli:'pack',isi_per_satuan:1,stok_harapan:2,pct_minimum:0.25,supplier_utama:'Cahaya Plastik',status:'AKTIF'},
+  {no:42,nama_bahan:'Spidol Permanen',tipe:'Beli',rak:'Meja Luar - Area 1',satuan_pakai:'pcs',satuan_beli:'dus',isi_per_satuan:12,stok_harapan:4,pct_minimum:0.25,supplier_utama:'',status:'AKTIF'},
+  {no:43,nama_bahan:'Sterofoam',tipe:'Beli',rak:'Meja Luar - Area 2',satuan_pakai:'pack',satuan_beli:'pack',isi_per_satuan:1,stok_harapan:2,pct_minimum:0.25,supplier_utama:'Wijaya Plastik',status:'AKTIF'},
+  {no:44,nama_bahan:'Sunlight',tipe:'Beli',rak:'Meja Luar - Area 4',satuan_pakai:'pcs',satuan_beli:'pcs',isi_per_satuan:1,stok_harapan:2,pct_minimum:0.25,supplier_utama:'Bu Endang',status:'AKTIF'},
+  {no:45,nama_bahan:'Tahu Putih',tipe:'Beli',rak:'Chiller',satuan_pakai:'pcs',satuan_beli:'pcs',isi_per_satuan:1,stok_harapan:25,pct_minimum:0.25,supplier_utama:'Mlijo Besar Mas Nanang',status:'AKTIF'},
+  {no:46,nama_bahan:'Teh Bola Api 999',tipe:'Beli',rak:'Rak Bawah Bar',satuan_pakai:'pack',satuan_beli:'bal',isi_per_satuan:10,stok_harapan:20,pct_minimum:0.25,supplier_utama:'Mlijo Besar Mas Nanang',status:'AKTIF'},
+  {no:47,nama_bahan:'Teh Naga',tipe:'Beli',rak:'Rak Bawah Bar',satuan_pakai:'pack',satuan_beli:'bal',isi_per_satuan:50,stok_harapan:50,pct_minimum:0.25,supplier_utama:'Mlijo Besar Mas Nanang',status:'AKTIF'},
+  {no:48,nama_bahan:'Telur Ayam',tipe:'Beli',rak:'Meja Luar - Area 2',satuan_pakai:'butir',satuan_beli:'peti',isi_per_satuan:30,stok_harapan:480,pct_minimum:0.25,supplier_utama:'Andre Telur',status:'AKTIF'},
+  {no:49,nama_bahan:'Tissue Pop Kecil',tipe:'Beli',rak:'Meja Kasir',satuan_pakai:'pack',satuan_beli:'bal',isi_per_satuan:10,stok_harapan:10,pct_minimum:0.25,supplier_utama:'Cahaya Plastik',status:'AKTIF'},
+  {no:50,nama_bahan:'Wipol',tipe:'Beli',rak:'Meja Luar - Area 4',satuan_pakai:'pcs',satuan_beli:'pcs',isi_per_satuan:1,stok_harapan:2,pct_minimum:0.25,supplier_utama:'Bu Endang',status:'AKTIF'},
+  {no:51,nama_bahan:'Es Batu',tipe:'Beli',rak:'Freezer',satuan_pakai:'pack',satuan_beli:'pack',isi_per_satuan:1,stok_harapan:3,pct_minimum:0.25,supplier_utama:'Klowor',status:'AKTIF'},
+];
+
+const MASTER_SUPPLIER = [
+  {no:1,nama_supplier:'Mlijo Besar Mas Nanang',nama_kontak:'Mas Nanang',no_wa:'',hari_kirim:'Tidak Bisa Kirim',min_order:'',template_pembuka:'',template_penutup:''},
+  {no:2,nama_supplier:'Mlijo Kecil',nama_kontak:'',no_wa:'',hari_kirim:'Tidak Bisa Kirim',min_order:'',template_pembuka:'',template_penutup:''},
+  {no:3,nama_supplier:'Toko Minyak',nama_kontak:'',no_wa:'',hari_kirim:'Tidak Bisa Kirim',min_order:'',template_pembuka:'',template_penutup:''},
+  {no:4,nama_supplier:'Bu Endang',nama_kontak:'',no_wa:'',hari_kirim:'Tidak Bisa Kirim',min_order:'',template_pembuka:'',template_penutup:''},
+  {no:5,nama_supplier:'Depan Bu Endang',nama_kontak:'',no_wa:'',hari_kirim:'Tidak Bisa Kirim',min_order:'',template_pembuka:'',template_penutup:''},
+  {no:6,nama_supplier:'Wijaya Plastik',nama_kontak:'',no_wa:'',hari_kirim:'Tidak Bisa Kirim',min_order:'',template_pembuka:'',template_penutup:''},
+  {no:7,nama_supplier:'Andre Telur',nama_kontak:'Andre',no_wa:'6281328878542',hari_kirim:'Bebas',min_order:'1 Peti Telur',template_pembuka:'',template_penutup:''},
+  {no:8,nama_supplier:'Umik Suhemah',nama_kontak:'Umik Suhemah',no_wa:'6281916807071',hari_kirim:'Tidak Bisa Kirim',min_order:'',template_pembuka:'',template_penutup:''},
+  {no:9,nama_supplier:'Cahaya Plastik',nama_kontak:'',no_wa:'',hari_kirim:'Tidak Bisa Kirim',min_order:'',template_pembuka:'',template_penutup:''},
+  {no:10,nama_supplier:'Distributor',nama_kontak:'',no_wa:'',hari_kirim:'Tidak Bisa Kirim',min_order:'',template_pembuka:'',template_penutup:''},
+  {no:11,nama_supplier:'Warung Madura (Beras)',nama_kontak:'',no_wa:'',hari_kirim:'Tidak Bisa Kirim',min_order:'',template_pembuka:'',template_penutup:''},
+  {no:12,nama_supplier:'Yuliamart Buring',nama_kontak:'',no_wa:'',hari_kirim:'Tidak Bisa Kirim',min_order:'',template_pembuka:'',template_penutup:''},
+  {no:13,nama_supplier:'Klowor',nama_kontak:'',no_wa:'',hari_kirim:'Tidak Bisa Kirim',min_order:'',template_pembuka:'',template_penutup:''},
+  {no:14,nama_supplier:'Alfamart',nama_kontak:'',no_wa:'',hari_kirim:'Tidak Bisa Kirim',min_order:'',template_pembuka:'',template_penutup:''},
+  {no:15,nama_supplier:'Shopee',nama_kontak:'',no_wa:'',hari_kirim:'Tidak Bisa Kirim',min_order:'',template_pembuka:'',template_penutup:''},
+  {no:16,nama_supplier:'Supplier Lontong',nama_kontak:'',no_wa:'',hari_kirim:'Tidak Bisa Kirim',min_order:'',template_pembuka:'',template_penutup:''},
+];
+
+function log(msg, type='info') {
+  const el = document.getElementById('log');
+  const line = document.createElement('div');
+  line.className = 'log-line '+type;
+  line.textContent = new Date().toLocaleTimeString('id-ID')+' — '+msg;
+  el.appendChild(line);
+  el.scrollTop = el.scrollHeight;
+}
+
+function setProgress(done, total) {
+  const pct = total>0?Math.round((done/total)*100):0;
+  document.getElementById('prog-fill').style.width = pct+'%';
+  document.getElementById('prog-text').textContent = `${done} / ${total} (${pct}%)`;
+}
+
+async function startSeed() {
+  document.getElementById('btn-seed').disabled = true;
+  document.getElementById('btn-clear').disabled = true;
+  document.getElementById('prog-wrap').style.display = 'block';
+  const total = MASTER_BAHAN.length + MASTER_SUPPLIER.length;
+  let done = 0;
+  log('Mulai import data ke Supabase...', 'info');
+
+  // Import bahan — batch sekaligus
+  log(`Mengimport ${MASTER_BAHAN.length} bahan baku...`, 'info');
+  try {
+    await sbFetch('master_bahan', {method:'POST', prefer:'return=minimal', body:JSON.stringify(MASTER_BAHAN)});
+    done += MASTER_BAHAN.length;
+    setProgress(done, total);
+    log(`✓ ${MASTER_BAHAN.length} bahan berhasil diimport`, 'ok');
+  } catch(e) {
+    log('✗ Gagal import bahan: '+e.message, 'err');
+  }
+
+  // Import supplier — batch sekaligus
+  log(`Mengimport ${MASTER_SUPPLIER.length} supplier...`, 'info');
+  try {
+    await sbFetch('master_supplier', {method:'POST', prefer:'return=minimal', body:JSON.stringify(MASTER_SUPPLIER)});
+    done += MASTER_SUPPLIER.length;
+    setProgress(done, total);
+    log(`✓ ${MASTER_SUPPLIER.length} supplier berhasil diimport`, 'ok');
+  } catch(e) {
+    log('✗ Gagal import supplier: '+e.message, 'err');
+  }
+
+  log('✅ Import selesai! Total: '+done+'/'+total+' berhasil.', 'ok');
+  document.getElementById('card-done').style.display = 'block';
+  document.getElementById('card-done').scrollIntoView({behavior:'smooth'});
+}
+
+async function startClear() {
+  if(!confirm('⚠️ Yakin hapus SEMUA data? Tindakan ini tidak bisa dibatalkan.')) return;
+  document.getElementById('btn-seed').disabled = true;
+  document.getElementById('btn-clear').disabled = true;
+  document.getElementById('prog-wrap').style.display = 'block';
+  log('Menghapus semua data...', 'warn');
+  const tables = ['master_bahan','master_supplier','log_stok','log_po'];
+  for(const t of tables) {
+    try {
+      await sbFetch(t+'?id=neq.00000000-0000-0000-0000-000000000000', {method:'DELETE'});
+      log(`✓ Tabel "${t}" berhasil dikosongkan`, 'ok');
+    } catch(e) {
+      log(`✗ Gagal hapus "${t}": `+e.message, 'err');
+    }
+  }
+  log('✅ Reset selesai. Kamu bisa import ulang sekarang.', 'ok');
+  document.getElementById('btn-seed').disabled = false;
+  document.getElementById('btn-clear').disabled = false;
+}
+
+async function sbFetch(path, options={}) {
+  const res = await fetch('https://ltpzxgjgkhneogydgezp.supabase.co/rest/v1/'+path, {
+    ...options,
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': 'Bearer '+SUPABASE_KEY,
+      'Content-Type': 'application/json',
+      'Prefer': options.prefer||'',
+      ...(options.headers||{})
+    }
+  });
+  if(!res.ok) throw new Error(await res.text());
+  const text = await res.text();
+  return text ? JSON.parse(text) : null;
+}
+</script>
+</body>
+</html>
